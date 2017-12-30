@@ -1,19 +1,18 @@
+// Simple "karplus strong" string implementation.
+// When the mouse is pressed, the string gets excited.
 let delayline = [];
 let slider;
 let audioCtx = new AudioContext();
-let delayLength = 400;
+let delayLength = 400; // this is the frequency of the string
 let pos = 0;
 source = audioCtx.createBufferSource();
 
-// Create a ScriptProcessorNode with a bufferSize of 4096 and a single input and output channel
-let scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
+// Create a ScriptProcessorNode with a bufferSize, input, output channels
+let scriptNode = audioCtx.createScriptProcessor(1024, 1, 1);
 
 function setup() {
     background(0);
 
-    for (let i = 0; i < delayLength; i++) {
-        delayline[i] = ((Math.random() * 2) - 1) * 0.5;
-    }
     slider = createSlider(0, 100, 50);
     source.connect(scriptNode);
     scriptNode.connect(audioCtx.destination);
@@ -21,6 +20,7 @@ function setup() {
 }
 
 function mousePressed() {
+    // fill the delay line with noise when the mouse is pressed
     for (let i = 0; i < delayLength; i++) {
         delayline[i] = ((Math.random() * 2) - 1) * 0.5;
     }
@@ -29,7 +29,6 @@ function mousePressed() {
 
 // Give the node a function to process audio events
 scriptNode.onaudioprocess = function(audioProcessingEvent) {
-    // The input buffer is the song we loaded earlier
     let inputBuffer = audioProcessingEvent.inputBuffer;
 
     let volume = slider.value() / 100;
@@ -43,12 +42,11 @@ scriptNode.onaudioprocess = function(audioProcessingEvent) {
 
         // Loop through the 4096 samples
         for (let sample = 0; sample < inputBuffer.length; sample++) {
-            // make output equal to the same as the input
-            // outputData[sample] = inputData[sample];
+            // update to the next position in the delay line 
             let nextPos = (pos + 1) % delayLength;
-            // add noise to each output sample
+            // lowpass filter the delayline 
             delayline[nextPos] = 0.5 * (delayline[nextPos] + delayline[pos]);
-
+            // scale output
             outputData[sample] = delayline[pos] * volume;
             pos = nextPos;
         }
