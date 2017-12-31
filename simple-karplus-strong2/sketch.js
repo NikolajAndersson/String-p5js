@@ -2,8 +2,11 @@
 // When the mouse is pressed, the string gets excited.
 let delayline = [];
 let slider;
+let aSlider;
+let gSlider;
 let audioCtx = new AudioContext();
-let delayLength = 400; // this is the frequency of the string
+let delayLength = 200; // this is the frequency of the string
+let ap = 0;
 let pos = 0;
 source = audioCtx.createBufferSource();
 
@@ -12,7 +15,8 @@ let scriptNode = audioCtx.createScriptProcessor(1024, 1, 1);
 
 function setup() {
     background(0);
-
+    aSlider = createSlider(0, 100, 50);
+    gSlider = createSlider(0, 100, 50);
     slider = createSlider(0, 100, 50);
     source.connect(scriptNode);
     scriptNode.connect(audioCtx.destination);
@@ -30,7 +34,8 @@ function mousePressed() {
 // Give the node a function to process audio events
 scriptNode.onaudioprocess = function(audioProcessingEvent) {
     let inputBuffer = audioProcessingEvent.inputBuffer;
-
+    let a = aSlider.value() / 100;
+    let g = gSlider.value() / 100;
     let volume = slider.value() / 100;
     // The output buffer contains the samples that will be modified and played
     let outputBuffer = audioProcessingEvent.outputBuffer;
@@ -45,9 +50,10 @@ scriptNode.onaudioprocess = function(audioProcessingEvent) {
             // update to the next position in the delay line 
             let nextPos = (pos + 1) % delayLength;
             // lowpass filter the delayline 
-            delayline[nextPos] = 0.5 * (delayline[nextPos] + delayline[pos]);
+            delayline[nextPos] = a * delayline[nextPos] + (1 - a) * delayline[pos];
             // scale output
-            outputData[sample] = delayline[pos] * volume;
+            let out = -g * delayline[pos] + delayline[(pos - 1) % delayLength] + g * ap;
+            outputData[sample] = out * volume;
             pos = nextPos;
         }
     }
