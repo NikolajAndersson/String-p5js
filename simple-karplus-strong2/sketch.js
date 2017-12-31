@@ -1,11 +1,12 @@
 // Simple "karplus strong" string implementation.
 // When the mouse is pressed, the string gets excited.
-let delayline = [];
+
 let slider;
 let aSlider;
 let gSlider;
 let audioCtx = new AudioContext();
 let delayLength = 200; // this is the frequency of the string
+let delayline = new Array(delayLength);
 let ap = 0;
 let pos = 0;
 source = audioCtx.createBufferSource();
@@ -15,6 +16,7 @@ let scriptNode = audioCtx.createScriptProcessor(1024, 1, 1);
 
 function setup() {
     background(0);
+
     aSlider = createSlider(0, 100, 50);
     gSlider = createSlider(0, 100, 50);
     slider = createSlider(0, 100, 50);
