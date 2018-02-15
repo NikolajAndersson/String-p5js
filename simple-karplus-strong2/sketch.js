@@ -43,14 +43,26 @@ function setup() {
 
 function mousePressed() {
     f = abs(mouseX);
+    if (f < 50) {
+        f = 50;
+    }
     delayLength = fs / f; // this is the frequency of the string
     delayLengthCeil = Math.ceil(delayLength);
     frac = delayLength - floor(delayLength);
-
     // fill the delay line with noise when the mouse is pressed
     for (let i = 0; i < delayLengthCeil; i++) {
         delayline[i] = ((Math.random() * 2) - 1) * 0.5;
     }
+}
+
+function mouseDragged() {
+    f = abs(mouseX);
+    if (f < 50) {
+        f = 50;
+    }
+    delayLength = fs / f; // this is the frequency of the string
+    delayLengthCeil = Math.ceil(delayLength);
+    frac = delayLength - floor(delayLength);
 }
 
 
